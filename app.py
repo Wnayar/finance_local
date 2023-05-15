@@ -1,6 +1,9 @@
 # note that this finance will not run properly now as lookupfunction wont work as api key expired
 # importing packages
 import os
+from dotenv import load_dotenv
+project_folder = os.path.expanduser('~/finance_local')
+load_dotenv(os.path.join(project_folder, '.env'))
 
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session
@@ -22,7 +25,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure  use SQLite database
-conn = sqlite3.connect('finance.db', check_same_thread=False)
+conn = sqlite3.connect('/home/WilliamNayar/finance_local/finance.db', check_same_thread=False)
 c = conn.cursor()
 
 # Make sure API key is set
@@ -60,7 +63,7 @@ def index():
     stocksowneddict = c.execute("SELECT symbol, qtybought FROM ( SELECT symbol, symbolname, SUM(qtybought) AS qtybought FROM purchases WHERE id=? GROUP BY symbol) WHERE qtybought > 0", (id,))
     keylist = ["symbol", "qtybought"]
     stocksowneddict = convert_listoftuple_to_listofdicts(keylist, c)
-    
+
     # created temp dicts which is intialized everytime main page is called
     # tempprice dict for current stock prices amd tempsymbol value for the total price per stock by multipyign current price and qty prucahsed
     temppricedict = {}
@@ -374,3 +377,6 @@ def sell():
     conn.commit()
     # return redirect to homepage
     return redirect("/")
+
+if __name__ == "__main__":
+    app.run(debug=True)
